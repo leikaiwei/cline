@@ -19,6 +19,7 @@ import { useClineAuth } from "@/context/ClineAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { cn } from "@/lib/utils"
 import { StateServiceClient } from "@/services/grpc-client"
+import { isSimplifiedChinesePreferredLanguage, localize } from "@/utils/localization"
 import { isAdminOrOwner } from "../account/helpers"
 import { Tab, TabContent, TabList, TabTrigger } from "../common/Tab"
 import ViewHeader from "../common/ViewHeader"
@@ -113,23 +114,6 @@ type SettingsViewProps = {
 	targetSection?: string
 }
 
-// Helper to render section header - moved outside component for better performance
-const renderSectionHeader = (tabId: string) => {
-	const tab = SETTINGS_TABS.find((t) => t.id === tabId)
-	if (!tab) {
-		return null
-	}
-
-	return (
-		<SectionHeader>
-			<div className="flex items-center gap-2">
-				<tab.icon className="w-4" />
-				<div>{tab.headerText}</div>
-			</div>
-		</SectionHeader>
-	)
-}
-
 const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 	// Memoize to avoid recreation
 	const TAB_CONTENT_MAP: Record<SettingsTabID, React.FC<any>> = useMemo(
@@ -146,8 +130,32 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		[],
 	) // Empty deps - these imports never change
 
-	const { version, environment, settingsInitialModelTab } = useExtensionState()
+	const { version, environment, settingsInitialModelTab, preferredLanguage } = useExtensionState()
 	const { activeOrganization } = useClineAuth()
+	const isZhCN = isSimplifiedChinesePreferredLanguage(preferredLanguage)
+
+	const localizedTabs = useMemo(
+		() =>
+			SETTINGS_TABS.map((tab) => {
+				if (!isZhCN) {
+					return tab
+				}
+
+				const localizedText: Partial<Record<SettingsTabID, { name: string; tooltipText: string; headerText: string }>> = {
+					"api-config": { name: "API 配置", tooltipText: "API 配置", headerText: "API 配置" },
+					features: { name: "功能", tooltipText: "功能设置", headerText: "功能设置" },
+					browser: { name: "浏览器", tooltipText: "浏览器设置", headerText: "浏览器设置" },
+					terminal: { name: "终端", tooltipText: "终端设置", headerText: "终端设置" },
+					general: { name: "通用", tooltipText: "通用设置", headerText: "通用设置" },
+					"remote-config": { name: "远程配置", tooltipText: "远程配置字段", headerText: "远程配置" },
+					about: { name: "关于", tooltipText: "关于 Cline", headerText: "关于" },
+					debug: { name: "调试", tooltipText: "调试工具", headerText: "调试" },
+				}
+
+				return { ...tab, ...(localizedText[tab.id] ?? {}) }
+			}),
+		[isZhCN],
+	)
 
 	const [activeTab, setActiveTab] = useState<string>(targetSection || SETTINGS_TABS[0].id)
 
@@ -209,9 +217,28 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		}
 	}, [targetSection])
 
+	const renderSectionHeader = useCallback(
+		(tabId: string) => {
+			const tab = localizedTabs.find((item) => item.id === tabId)
+			if (!tab) {
+				return null
+			}
+
+			return (
+				<SectionHeader>
+					<div className="flex items-center gap-2">
+						<tab.icon className="w-4" />
+						<div>{tab.headerText}</div>
+					</div>
+				</SectionHeader>
+			)
+		},
+		[localizedTabs],
+	)
+
 	// Memoized tab item renderer
 	const renderTabItem = useCallback(
-		(tab: (typeof SETTINGS_TABS)[0]) => {
+		(tab: (typeof localizedTabs)[0]) => {
 			return (
 				<TabTrigger className="flex justify-baseline" data-testid={`tab-${tab.id}`} key={tab.id} value={tab.id}>
 					<Tooltip key={tab.id}>
@@ -254,18 +281,22 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 		}
 
 		return <Component {...props} />
-	}, [activeTab, handleResetState, settingsInitialModelTab, version])
+	}, [activeTab, handleResetState, renderSectionHeader, settingsInitialModelTab, version])
 
 	return (
 		<Tab>
-			<ViewHeader environment={environment} onDone={onDone} title="Settings" />
+			<ViewHeader
+				environment={environment}
+				onDone={onDone}
+				title={localize(preferredLanguage, "Settings", "设置")}
+			/>
 
 			<div className="flex flex-1 overflow-hidden">
 				<TabList
 					className="shrink-0 flex flex-col overflow-y-auto border-r border-sidebar-background"
 					onValueChange={setActiveTab}
 					value={activeTab}>
-					{SETTINGS_TABS.filter((tab) => !tab.hidden?.({ activeOrganization })).map(renderTabItem)}
+					{localizedTabs.filter((tab) => !tab.hidden?.({ activeOrganization })).map(renderTabItem)}
 				</TabList>
 
 				<TabContent className="flex-1 overflow-auto">{ActiveContent}</TabContent>

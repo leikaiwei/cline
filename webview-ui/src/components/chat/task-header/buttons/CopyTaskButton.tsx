@@ -3,12 +3,15 @@ import { CheckIcon, CopyIcon } from "lucide-react"
 import { useCallback, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useExtensionState } from "@/context/ExtensionStateContext"
+import { localize } from "@/utils/localization"
 
 const CopyTaskButton: React.FC<{
 	taskText?: string
 	className?: string
 }> = ({ taskText, className }) => {
 	const [copied, setCopied] = useState(false)
+	const { preferredLanguage } = useExtensionState()
 
 	const handleCopy = useCallback(() => {
 		if (!taskText) {
@@ -23,10 +26,10 @@ const CopyTaskButton: React.FC<{
 
 	return (
 		<Tooltip>
-			<TooltipContent side="bottom">Copy Text</TooltipContent>
+			<TooltipContent side="bottom">{localize(preferredLanguage, "Copy Text", "复制文本")}</TooltipContent>
 			<TooltipTrigger className={cn("flex items-center", className)}>
 				<Button
-					aria-label="Copy"
+					aria-label={localize(preferredLanguage, "Copy", "复制")}
 					onClick={(e) => {
 						e.preventDefault()
 						e.stopPropagation()

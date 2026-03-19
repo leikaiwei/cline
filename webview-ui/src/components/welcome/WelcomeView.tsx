@@ -5,10 +5,11 @@ import ClineLogoWhite from "@/assets/ClineLogoWhite"
 import ApiOptions from "@/components/settings/ApiOptions"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { AccountServiceClient, StateServiceClient } from "@/services/grpc-client"
+import { localize } from "@/utils/localization"
 import { validateApiConfiguration } from "@/utils/validate"
 
 const WelcomeView = memo(() => {
-	const { apiConfiguration, mode } = useExtensionState()
+	const { apiConfiguration, mode, preferredLanguage } = useExtensionState()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [showApiOptions, setShowApiOptions] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
@@ -39,27 +40,34 @@ const WelcomeView = memo(() => {
 	return (
 		<div className="fixed inset-0 p-0 flex flex-col">
 			<div className="h-full px-5 overflow-auto flex flex-col gap-2.5">
-				<h2 className="text-lg font-semibold">Hi, I'm Cline</h2>
+				<h2 className="text-lg font-semibold">{localize(preferredLanguage, "Hi, I'm Cline", "你好，我是 Cline")}</h2>
 				<div className="flex justify-center my-5">
 					<ClineLogoWhite className="size-16" />
 				</div>
 				<p>
-					I can do all kinds of tasks thanks to breakthroughs in{" "}
+					{localize(preferredLanguage, "I can do all kinds of tasks thanks to breakthroughs in ", "得益于 ")}
 					<VSCodeLink className="inline" href="https://www.anthropic.com/claude/sonnet">
 						Claude 4.6 Sonnet's
 					</VSCodeLink>
-					agentic coding capabilities and access to tools that let me create & edit files, explore complex projects, use
-					a browser, and execute terminal commands <i>(with your permission, of course)</i>. I can even use MCP to
-					create new tools and extend my own capabilities.
+					{localize(
+						preferredLanguage,
+						" agentic coding capabilities and access to tools that let me create & edit files, explore complex projects, use a browser, and execute terminal commands ",
+						" 的代理式编码能力，以及创建/编辑文件、探索复杂项目、使用浏览器、执行终端命令等工具能力 ",
+					)}
+					<i>{localize(preferredLanguage, "(with your permission, of course)", "（当然，需要你的授权）")}</i>
+					{localize(preferredLanguage, ". I can even use MCP to create new tools and extend my own capabilities.", "。我还可以借助 MCP 创建新工具，扩展自己的能力。")}
 				</p>
 
 				<p className="text-(--vscode-descriptionForeground)">
-					Sign up for an account to get started for free, or use an API key that provides access to models like Claude
-					Sonnet.
+					{localize(
+						preferredLanguage,
+						"Sign up for an account to get started for free, or use an API key that provides access to models like Claude Sonnet.",
+						"注册账户即可免费开始使用，或使用可访问 Claude Sonnet 等模型的 API Key。",
+					)}
 				</p>
 
 				<VSCodeButton appearance="primary" className="w-full mt-1" disabled={isLoading} onClick={handleLogin}>
-					Get Started for Free
+					{localize(preferredLanguage, "Get Started for Free", "免费开始使用")}
 					{isLoading && (
 						<span className="ml-1 animate-spin">
 							<span className="codicon codicon-refresh" />
@@ -72,7 +80,7 @@ const WelcomeView = memo(() => {
 						appearance="secondary"
 						className="mt-2.5 w-full"
 						onClick={() => setShowApiOptions(!showApiOptions)}>
-						Use your own API key
+						{localize(preferredLanguage, "Use your own API key", "使用自己的 API Key")}
 					</VSCodeButton>
 				)}
 
@@ -81,7 +89,7 @@ const WelcomeView = memo(() => {
 						<div>
 							<ApiOptions currentMode={mode} showModelOptions={false} />
 							<VSCodeButton className="mt-0.75" disabled={disableLetsGoButton} onClick={handleSubmit}>
-								Let's go!
+								{localize(preferredLanguage, "Let's go!", "开始吧！")}
 							</VSCodeButton>
 						</div>
 					)}
