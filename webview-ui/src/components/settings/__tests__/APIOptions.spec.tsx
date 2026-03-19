@@ -1,4 +1,4 @@
-import { ApiConfiguration } from "@shared/api"
+import { ApiConfiguration, openAiModelInfoSaneDefaults } from "@shared/api"
 import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { ExtensionStateContextProvider, useExtensionState } from "@/context/ExtensionStateContext"
@@ -176,6 +176,33 @@ describe("OpenApiInfoOptions", () => {
 		const orgIdInput = screen.getByText("Context Window Size")
 		expect(orgIdInput).toBeInTheDocument()
 	})
+	it("uses 32k as the default OpenAI Compatible context window", () => {
+		render(
+			<ExtensionStateContextProvider>
+				<ApiOptions currentMode="plan" showModelOptions={true} />
+			</ExtensionStateContextProvider>,
+		)
+		fireEvent.click(screen.getByText("Model Configuration"))
+		expect(screen.getByDisplayValue("32000")).toBeInTheDocument()
+	})
+
+	it("upgrades legacy 128k OpenAI Compatible defaults to 32k in the UI", () => {
+		mockExtensionState({
+			planModeApiProvider: "openai",
+			actModeApiProvider: "openai",
+			planModeOpenAiModelInfo: { ...openAiModelInfoSaneDefaults },
+			actModeOpenAiModelInfo: { ...openAiModelInfoSaneDefaults },
+		})
+
+		render(
+			<ExtensionStateContextProvider>
+				<ApiOptions currentMode="plan" showModelOptions={true} />
+			</ExtensionStateContextProvider>,
+		)
+		fireEvent.click(screen.getByText("Model Configuration"))
+		expect(screen.getByDisplayValue("32000")).toBeInTheDocument()
+	})
+
 
 	it("renders OpenAI Max Output Tokens input", () => {
 		render(

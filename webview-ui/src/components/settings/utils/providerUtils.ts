@@ -51,6 +51,7 @@ import {
 	openAiCodexDefaultModelId,
 	openAiCodexModels,
 	openAiModelInfoSaneDefaults,
+	resolveOpenAiCompatibleModelInfo,
 	openAiNativeDefaultModelId,
 	openAiNativeModels,
 	openRouterDefaultModelId,
@@ -301,7 +302,7 @@ export function normalizeApiConfiguration(
 			return {
 				selectedProvider: provider,
 				selectedModelId: openAiModelId || "",
-				selectedModelInfo: openAiModelInfo || openAiModelInfoSaneDefaults,
+				selectedModelInfo: resolveOpenAiCompatibleModelInfo(openAiModelInfo),
 			}
 		case "hicap":
 			const hicapModelId =
@@ -608,7 +609,9 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
 			mode === "plan" ? apiConfiguration.planModeVercelAiGatewayModelId : apiConfiguration.actModeVercelAiGatewayModelId,
 
 		// Model info objects
-		openAiModelInfo: mode === "plan" ? apiConfiguration.planModeOpenAiModelInfo : apiConfiguration.actModeOpenAiModelInfo,
+		openAiModelInfo: resolveOpenAiCompatibleModelInfo(
+			mode === "plan" ? apiConfiguration.planModeOpenAiModelInfo : apiConfiguration.actModeOpenAiModelInfo,
+		),
 		liteLlmModelInfo: mode === "plan" ? apiConfiguration.planModeLiteLlmModelInfo : apiConfiguration.actModeLiteLlmModelInfo,
 		openRouterModelInfo,
 		clineModelInfo,

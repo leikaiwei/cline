@@ -1375,6 +1375,45 @@ export const openAiModelInfoSaneDefaults: OpenAiCompatibleModelInfo = {
 	temperature: 0,
 }
 
+// OpenAI Compatible 默认按更保守的 32k 上下文初始化，避免误用 128k。
+export const openAiCompatibleModelInfoDefaults: OpenAiCompatibleModelInfo = {
+	...openAiModelInfoSaneDefaults,
+	contextWindow: 32_000,
+}
+
+// 仅把“旧默认值”升级为 32k，避免覆盖用户明确配置。
+export const isLegacyOpenAiCompatibleModelInfo = (info?: OpenAiCompatibleModelInfo): boolean => {
+	if (!info) {
+		return false
+	}
+
+	return (
+		info.contextWindow === openAiModelInfoSaneDefaults.contextWindow &&
+		info.maxTokens === openAiModelInfoSaneDefaults.maxTokens &&
+		info.supportsImages === openAiModelInfoSaneDefaults.supportsImages &&
+		info.supportsPromptCache === openAiModelInfoSaneDefaults.supportsPromptCache &&
+		info.isR1FormatRequired === openAiModelInfoSaneDefaults.isR1FormatRequired &&
+		info.inputPrice === openAiModelInfoSaneDefaults.inputPrice &&
+		info.outputPrice === openAiModelInfoSaneDefaults.outputPrice &&
+		info.temperature === openAiModelInfoSaneDefaults.temperature
+	)
+}
+
+// 统一 OpenAI Compatible 的实际生效配置。
+export const resolveOpenAiCompatibleModelInfo = (
+	info?: OpenAiCompatibleModelInfo,
+): OpenAiCompatibleModelInfo => {
+	if (!info || isLegacyOpenAiCompatibleModelInfo(info)) {
+		return { ...openAiCompatibleModelInfoDefaults }
+	}
+
+	return {
+		...openAiCompatibleModelInfoDefaults,
+		...info,
+		contextWindow: info.contextWindow ?? openAiCompatibleModelInfoDefaults.contextWindow,
+	}
+}
+
 // Gemini
 // https://ai.google.dev/gemini-api/docs/models/gemini
 export type GeminiModelId = keyof typeof geminiModels
