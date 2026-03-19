@@ -1,6 +1,8 @@
 name: Trigger Jetbrains Plugin <-> Cline Tests
 on:
   pull_request_target:
+    branches:
+      - main
     types: [opened, reopened]
   issue_comment:
     types: [created]
@@ -41,11 +43,13 @@ jobs:
           PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }})
           echo "head_ref=$(echo "$PR_DATA" | jq -r '.head.ref')" >> $GITHUB_OUTPUT
           echo "head_sha=$(echo "$PR_DATA" | jq -r '.head.sha')" >> $GITHUB_OUTPUT
+          echo "base_ref=$(echo "$PR_DATA" | jq -r '.base.ref')" >> $GITHUB_OUTPUT
           echo "title=$(echo "$PR_DATA" | jq -r '.title')" >> $GITHUB_OUTPUT
           echo "html_url=$(echo "$PR_DATA" | jq -r '.html_url')" >> $GITHUB_OUTPUT
 
       - name: Sanitize untrusted inputs
         id: sanitize
+        if: github.event_name == 'pull_request_target' || steps.pr-details.outputs.base_ref == 'main'
         env:
           RAW_BRANCH_NAME: ${{ github.event_name == 'pull_request_target' && github.head_ref || steps.pr-details.outputs.head_ref }}
           RAW_PR_TITLE: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.title || steps.pr-details.outputs.title }}
@@ -59,6 +63,7 @@ jobs:
           echo "pr_title=$PR_TITLE_JSON" >> $GITHUB_OUTPUT
 
       - name: Trigger IntelliJ Plugin Integration Test
+        if: github.event_name == 'pull_request_target' || steps.pr-details.outputs.base_ref == 'main'
         env:
           BRANCH_NAME: ${{ steps.sanitize.outputs.branch_name }}
           PR_TITLE: ${{ steps.sanitize.outputs.pr_title }}
@@ -87,6 +92,7 @@ jobs:
           EOF
 
       - name: Log trigger details
+        if: github.event_name == 'pull_request_target' || steps.pr-details.outputs.base_ref == 'main'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
           PR_SHA: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || steps.pr-details.outputs.head_sha }}
