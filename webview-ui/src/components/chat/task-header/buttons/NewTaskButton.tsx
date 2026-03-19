@@ -14,9 +14,10 @@ const NewTaskButton: React.FC<{
 	return (
 		<Tooltip>
 			<TooltipContent side="left">{localize(preferredLanguage, "Start a New Task", "开始新任务")}</TooltipContent>
-			<TooltipTrigger className={cn("flex items-center", className)}>
+			<TooltipTrigger asChild>
 				<Button
 					aria-label={localize(preferredLanguage, "New Task", "新建任务")}
+					className={cn("flex items-center", className)}
 					onClick={(e) => {
 						e.preventDefault()
 						e.stopPropagation()

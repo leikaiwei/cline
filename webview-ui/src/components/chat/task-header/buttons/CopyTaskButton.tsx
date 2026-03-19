@@ -27,9 +27,10 @@ const CopyTaskButton: React.FC<{
 	return (
 		<Tooltip>
 			<TooltipContent side="bottom">{localize(preferredLanguage, "Copy Text", "复制文本")}</TooltipContent>
-			<TooltipTrigger className={cn("flex items-center", className)}>
+			<TooltipTrigger asChild>
 				<Button
 					aria-label={localize(preferredLanguage, "Copy", "复制")}
+					className={cn("flex items-center", className)}
 					onClick={(e) => {
 						e.preventDefault()
 						e.stopPropagation()

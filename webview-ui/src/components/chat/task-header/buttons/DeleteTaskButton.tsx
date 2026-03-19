@@ -21,9 +21,10 @@ const DeleteTaskButton: React.FC<{
 				{localize(preferredLanguage, "Delete Task", "删除任务")}{" "}
 				{localize(preferredLanguage, `(size: ${taskSize ? formatSize(taskSize) : "--"})`, `（大小：${taskSize ? formatSize(taskSize) : "--"}）`)}
 			</TooltipContent>
-			<TooltipTrigger className={cn("flex items-center", className)}>
+			<TooltipTrigger asChild>
 				<Button
 					aria-label={localize(preferredLanguage, "Delete Task", "删除任务")}
+					className={cn("flex items-center", className)}
 					disabled={!taskId}
 					onClick={(e) => {
 						e.preventDefault()
