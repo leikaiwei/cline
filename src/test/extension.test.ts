@@ -6,6 +6,21 @@ import * as vscode from "vscode"
 
 const packagePath = path.join(__dirname, "..", "..", "package.json")
 
+async function activateClineExtension() {
+	const packageJSON = JSON.parse(await readFile(packagePath, "utf8"))
+	const extensionId = `${packageJSON.publisher}.${packageJSON.name}`
+	const clineExtension = vscode.extensions.getExtension(extensionId)
+
+	should.exist(clineExtension)
+
+	if (!clineExtension?.isActive) {
+		// 测试先主动激活扩展，避免命令注册和启动时序互相影响。
+		await clineExtension?.activate()
+	}
+
+	return clineExtension
+}
+
 describe("Cline Extension", () => {
 	after(() => {
 		vscode.window.showInformationMessage("All tests done!")
@@ -20,7 +35,9 @@ describe("Cline Extension", () => {
 	})
 
 	it("should successfully execute the plus button command", async () => {
-		await new Promise((resolve) => setTimeout(resolve, 400))
+		const clineExtension = await activateClineExtension()
+		clineExtension?.isActive.should.equal(true)
+
 		await vscode.commands.executeCommand("cline.plusButtonClicked")
 	})
 
