@@ -18,6 +18,7 @@ const NewTaskButton: React.FC<{
 				<Button
 					aria-label={localize(preferredLanguage, "New Task", "新建任务")}
 					className={cn("flex items-center", className)}
+					data-testid="new-task-button"
 					onClick={(e) => {
 						e.preventDefault()
 						e.stopPropagation()
