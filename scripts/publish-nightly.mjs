@@ -56,7 +56,7 @@ const log = {
 const config = {
 	// The name and display name for the nightly version
 	nightlyName: "cline-nightly",
-	originalName: "claude-dev",
+	originalName: "claude-dev-hoperun",
 	nightlyDisplayName: "Cline (Nightly)",
 	projectRoot: path.join(__dirname, ".."),
 	get packageJsonPath() {
@@ -185,9 +185,9 @@ class NightlyPublisher {
 	 *
 	 * The repo root is a workspace package ("."). When npm installs dependencies,
 	 * it creates a self-link at node_modules/<package-name>. Nightly packaging
-	 * changes package.json name from "claude-dev" to "cline-nightly". If we don't
+	 * changes package.json name from "claude-dev-hoperun" to "cline-nightly". If we don't
 	 * align this link, vsce's dependency detection (`npm list --production`) fails
-	 * with ELSPROBLEMS (missing cline-nightly + extraneous claude-dev).
+	 * with ELSPROBLEMS (missing cline-nightly + extraneous claude-dev-hoperun).
 	 */
 	reconcileWorkspaceSelfLinkForNightly() {
 		const originalPath = config.originalWorkspaceLinkPath
@@ -294,9 +294,9 @@ class NightlyPublisher {
 	 * Update package.json with nightly configuration
 	 */
 	updatePackageJson() {
-		// Replace any occurrences cline. or claude-dev with nightly name
+		// Replace any occurrences cline. or current package name with nightly name
 		const rawContent = fs.readFileSync(config.packageJsonPath, "utf-8")
-		const content = rawContent.replaceAll("claude-dev", config.nightlyName).replaceAll('"cline.', `"${config.nightlyName}.`)
+		const content = rawContent.replaceAll(config.originalName, config.nightlyName).replaceAll('"cline.', `"${config.nightlyName}.`)
 
 		const pkg = JSON.parse(content)
 		const currentVersion = pkg.version

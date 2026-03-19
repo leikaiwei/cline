@@ -1,7 +1,7 @@
 {
-	"name": "claude-dev",
+	"name": "claude-dev-hoperun",
 	"displayName": "Cline Hoperun",
-	"description": "Cline Hoperun by kelvin, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
+	"description": "Cline Hoperun by leikaiwei, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
 	"version": "3.74.0",
 	"icon": "assets/icons/icon.png",
 	"workspaces": [
@@ -12,10 +12,10 @@
 		"vscode": "^1.84.0"
 	},
 	"author": {
-		"name": "kelvin"
+		"name": "leikaiwei"
 	},
 	"license": "Apache-2.0",
-	"publisher": "kelvin",
+	"publisher": "leikaiwei",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/cline/cline"
@@ -115,17 +115,17 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "claude-dev-ActivityBar",
+					"id": "claude-dev-hoperun-ActivityBar",
 					"title": "Cline Hoperun",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"claude-dev-ActivityBar": [
+			"claude-dev-hoperun-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "claude-dev.SidebarProvider",
+					"id": "claude-dev-hoperun.SidebarProvider",
 					"name": "",
 					"icon": "assets/icons/icon.svg"
 				}
@@ -279,27 +279,27 @@
 				{
 					"command": "cline.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-dev-hoperun.SidebarProvider"
 				},
 				{
 					"command": "cline.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-dev-hoperun.SidebarProvider"
 				},
 				{
 					"command": "cline.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-dev-hoperun.SidebarProvider"
 				},
 				{
 					"command": "cline.accountButtonClicked",
 					"group": "navigation@5",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-dev-hoperun.SidebarProvider"
 				},
 				{
 					"command": "cline.settingsButtonClicked",
 					"group": "navigation@6",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == claude-dev-hoperun.SidebarProvider"
 				}
 			],
 			"editor/context": [
