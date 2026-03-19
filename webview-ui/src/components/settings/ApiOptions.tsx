@@ -55,6 +55,7 @@ import { WandbProvider } from "./providers/WandbProvider"
 import { XaiProvider } from "./providers/XaiProvider"
 import { ZAiProvider } from "./providers/ZAiProvider"
 import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers"
+import { localize } from "@/utils/localization"
 
 interface ApiOptionsProps {
 	showModelOptions: boolean
@@ -98,7 +99,7 @@ const ApiOptions = ({
 	initialModelTab,
 }: ApiOptionsProps) => {
 	// Use full context state for immediate save payload
-	const { apiConfiguration, remoteConfigSettings } = useExtensionState()
+	const { apiConfiguration, remoteConfigSettings, preferredLanguage } = useExtensionState()
 
 	const { selectedProvider } = normalizeApiConfiguration(apiConfiguration, currentMode)
 
@@ -282,16 +283,16 @@ const ApiOptions = ({
 						<TooltipTrigger>
 							<div className="flex items-center gap-2 mb-1">
 								<label htmlFor="api-provider">
-									<span style={{ fontWeight: 500 }}>API Provider</span>
+									<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "API Provider", "API 提供商")}</span>
 								</label>
 								<i className="codicon codicon-lock text-description text-sm" />
 							</div>
 						</TooltipTrigger>
-						<TooltipContent>Provider options are managed by your organization's remote configuration</TooltipContent>
+						<TooltipContent>{localize(preferredLanguage, "Provider options are managed by your organization's remote configuration", "提供商选项由组织的远程配置统一管理")}</TooltipContent>
 					</Tooltip>
 				) : (
 					<label htmlFor="api-provider">
-						<span style={{ fontWeight: 500 }}>API Provider</span>
+						<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "API Provider", "API 提供商")}</span>
 					</label>
 				)}
 				<ProviderDropdownWrapper ref={dropdownRef}>
@@ -307,7 +308,7 @@ const ApiOptions = ({
 							setIsDropdownVisible(true)
 						}}
 						onKeyDown={handleKeyDown}
-						placeholder="Search and select provider..."
+						placeholder={localize(preferredLanguage, "Search and select provider...", "搜索并选择提供商...")}
 						role="combobox"
 						style={{
 							width: "100%",
@@ -318,7 +319,7 @@ const ApiOptions = ({
 						value={searchTerm}>
 						{searchTerm && searchTerm !== currentProviderLabel && (
 							<div
-								aria-label="Clear search"
+								aria-label={localize(preferredLanguage, "Clear search", "清空搜索")}
 								className="input-icon-button codicon codicon-close"
 								onClick={() => {
 									setSearchTerm("")

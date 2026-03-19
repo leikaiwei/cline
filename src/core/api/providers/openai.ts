@@ -1,5 +1,11 @@
 import { DefaultAzureCredential, getBearerTokenProvider } from "@azure/identity"
-import { azureOpenAiDefaultApiVersion, ModelInfo, OpenAiCompatibleModelInfo, openAiModelInfoSaneDefaults } from "@shared/api"
+import {
+	azureOpenAiDefaultApiVersion,
+	ModelInfo,
+	OpenAiCompatibleModelInfo,
+	openAiModelInfoSaneDefaults,
+	resolveOpenAiCompatibleModelInfo,
+} from "@shared/api"
 import { normalizeOpenaiReasoningEffort } from "@shared/storage/types"
 import OpenAI, { AzureOpenAI } from "openai"
 import type { ChatCompletionReasoningEffort, ChatCompletionTool } from "openai/resources/chat/completions"
@@ -182,7 +188,7 @@ export class OpenAiHandler implements ApiHandler {
 	getModel(): { id: string; info: ModelInfo } {
 		return {
 			id: this.options.openAiModelId ?? "",
-			info: this.options.openAiModelInfo ?? openAiModelInfoSaneDefaults,
+			info: resolveOpenAiCompatibleModelInfo(this.options.openAiModelInfo),
 		}
 	}
 }

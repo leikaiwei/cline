@@ -1,6 +1,8 @@
 import { ModelInfo } from "@shared/api"
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
 import styled from "styled-components"
+import { useExtensionState } from "@/context/ExtensionStateContext"
+import { localize } from "@/utils/localization"
 
 /**
  * Container for dropdowns that ensures proper z-index handling
@@ -47,13 +49,16 @@ OG Saoud Note:
  * A reusable component for selecting models from a dropdown
  */
 export const ModelSelector = ({ models, selectedModelId, onChange, zIndex, label = "Model" }: ModelSelectorProps) => {
+	const { preferredLanguage } = useExtensionState()
+	const localizedLabel = label === "Model" ? localize(preferredLanguage, "Model", "模型") : label
+
 	return (
 		<DropdownContainer className="dropdown-container" zIndex={zIndex}>
 			<label htmlFor="model-id">
-				<span className="font-medium">{label}</span>
+				<span className="font-medium">{localizedLabel}</span>
 			</label>
 			<VSCodeDropdown className="w-full" id="model-id" onChange={onChange} value={selectedModelId}>
-				<VSCodeOption value="">Select a model...</VSCodeOption>
+				<VSCodeOption value="">{localize(preferredLanguage, "Select a model...", "请选择模型...")}</VSCodeOption>
 				{Object.keys(models).map((modelId) => (
 					<VSCodeOption className="break-words whitespace-normal max-w-full" key={modelId} value={modelId}>
 						{modelId}

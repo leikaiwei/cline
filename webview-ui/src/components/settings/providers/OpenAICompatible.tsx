@@ -1,5 +1,5 @@
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip"
-import { azureOpenAiDefaultApiVersion, openAiModelInfoSaneDefaults } from "@shared/api"
+import { azureOpenAiDefaultApiVersion, openAiCompatibleModelInfoDefaults } from "@shared/api"
 import { OpenAiModelsRequest } from "@shared/proto/cline/models"
 import { Mode } from "@shared/storage/types"
 import { VSCodeButton, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Tooltip } from "@/components/ui/tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { ModelsServiceClient } from "@/services/grpc-client"
+import { localize } from "@/utils/localization"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "@/utils/vscStyles"
 import { ApiKeyField } from "../common/ApiKeyField"
 import { BaseUrlField } from "../common/BaseUrlField"
@@ -31,7 +32,7 @@ interface OpenAICompatibleProviderProps {
  * The OpenAI Compatible provider configuration component
  */
 export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMode }: OpenAICompatibleProviderProps) => {
-	const { apiConfiguration, remoteConfigSettings } = useExtensionState()
+	const { apiConfiguration, remoteConfigSettings, preferredLanguage } = useExtensionState()
 	const { handleFieldChange, handleModeFieldChange } = useApiConfigurationHandlers()
 
 	const [modelConfigurationSelected, setModelConfigurationSelected] = useState(false)
@@ -79,7 +80,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 				<TooltipTrigger>
 					<div className="mb-2.5">
 						<div className="flex items-center gap-2 mb-1">
-							<span style={{ fontWeight: 500 }}>Base URL</span>
+							<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Base URL", "Base URL")}</span>
 							{remoteConfigSettings?.openAiBaseUrl !== undefined && (
 								<i className="codicon codicon-lock text-description text-sm" />
 							)}
@@ -91,14 +92,14 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 								handleFieldChange("openAiBaseUrl", value)
 								debouncedRefreshOpenAiModels(value, apiConfiguration?.openAiApiKey)
 							}}
-							placeholder={"Enter base URL..."}
+							placeholder={localize(preferredLanguage, "Enter base URL...", "输入 Base URL...")}
 							style={{ width: "100%", marginBottom: 10 }}
 							type="text"
 						/>
 					</div>
 				</TooltipTrigger>
 				<TooltipContent hidden={remoteConfigSettings?.openAiBaseUrl === undefined}>
-					This setting is managed by your organization's remote configuration
+					{localize(preferredLanguage, "This setting is managed by your organization's remote configuration", "此设置由组织的远程配置统一管理")}
 				</TooltipContent>
 			</Tooltip>
 
@@ -116,9 +117,9 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 				onChange={(value) =>
 					handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, value, currentMode)
 				}
-				placeholder={"Enter Model ID..."}
+				placeholder={localize(preferredLanguage, "Enter Model ID...", "输入模型 ID...")}
 				style={{ width: "100%", marginBottom: 10 }}>
-				<span style={{ fontWeight: 500 }}>Model ID</span>
+				<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Model ID", "模型 ID")}</span>
 			</DebouncedTextField>
 
 			{/* OpenAI Compatible Custom Headers */}
@@ -131,14 +132,14 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 							<Tooltip>
 								<TooltipTrigger>
 									<div className="flex items-center gap-2">
-										<span style={{ fontWeight: 500 }}>Custom Headers</span>
+										<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Custom Headers", "自定义请求头")}</span>
 										{remoteConfigSettings?.openAiHeaders !== undefined && (
 											<i className="codicon codicon-lock text-description text-sm" />
 										)}
 									</div>
 								</TooltipTrigger>
 								<TooltipContent hidden={remoteConfigSettings?.openAiHeaders === undefined}>
-									This setting is managed by your organization's remote configuration
+									{localize(preferredLanguage, "This setting is managed by your organization's remote configuration", "此设置由组织的远程配置统一管理")}
 								</TooltipContent>
 							</Tooltip>
 							<VSCodeButton
@@ -150,7 +151,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 									currentHeaders[newKey] = ""
 									handleFieldChange("openAiHeaders", currentHeaders)
 								}}>
-								Add Header
+								{localize(preferredLanguage, "Add Header", "添加请求头")}
 							</VSCodeButton>
 						</div>
 
@@ -170,7 +171,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 												})
 											}
 										}}
-										placeholder="Header name"
+										placeholder={localize(preferredLanguage, "Header name", "请求头名称")}
 										style={{ width: "40%" }}
 									/>
 									<DebouncedTextField
@@ -182,7 +183,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 												[key]: newValue,
 											})
 										}}
-										placeholder="Header value"
+										placeholder={localize(preferredLanguage, "Header value", "请求头值")}
 										style={{ width: "40%" }}
 									/>
 									<VSCodeButton
@@ -192,7 +193,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 											const { [key]: _, ...rest } = apiConfiguration?.openAiHeaders ?? {}
 											handleFieldChange("openAiHeaders", rest)
 										}}>
-										Remove
+										{localize(preferredLanguage, "Remove", "移除")}
 									</VSCodeButton>
 								</div>
 							))}
@@ -207,20 +208,20 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 						<BaseUrlField
 							disabled={true}
 							initialValue={apiConfiguration?.azureApiVersion}
-							label="Set Azure API version"
+							label={localize(preferredLanguage, "Set Azure API version", "设置 Azure API 版本")}
 							onChange={(value) => handleFieldChange("azureApiVersion", value)}
-							placeholder={`Default: ${azureOpenAiDefaultApiVersion}`}
+							placeholder={localize(preferredLanguage, `Default: ${azureOpenAiDefaultApiVersion}`, `默认值：${azureOpenAiDefaultApiVersion}`)}
 							showLockIcon={true}
 						/>
 					</TooltipTrigger>
-					<TooltipContent>This setting is managed by your organization's remote configuration</TooltipContent>
+					<TooltipContent>{localize(preferredLanguage, "This setting is managed by your organization's remote configuration", "此设置由组织的远程配置统一管理")}</TooltipContent>
 				</Tooltip>
 			) : (
 				<BaseUrlField
 					initialValue={apiConfiguration?.azureApiVersion}
-					label="Set Azure API version"
+					label={localize(preferredLanguage, "Set Azure API version", "设置 Azure API 版本")}
 					onChange={(value) => handleFieldChange("azureApiVersion", value)}
-					placeholder={`Default: ${azureOpenAiDefaultApiVersion}`}
+					placeholder={localize(preferredLanguage, `Default: ${azureOpenAiDefaultApiVersion}`, `默认值：${azureOpenAiDefaultApiVersion}`)}
 				/>
 			)}
 
@@ -230,7 +231,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 					const isChecked = e.target.checked === true
 					return handleFieldChange("azureIdentity", isChecked)
 				}}>
-				Use Azure Identity Authentication
+				{localize(preferredLanguage, "Use Azure Identity Authentication", "使用 Azure Identity 身份认证")}
 			</VSCodeCheckbox>
 
 			<div style={{ marginTop: 10, marginBottom: 10 }}>
@@ -257,7 +258,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 						fontWeight: 700,
 						textTransform: "uppercase",
 					}}>
-					Model Configuration
+					{localize(preferredLanguage, "Model Configuration", "模型配置")}
 				</span>
 			</div>
 
@@ -267,7 +268,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 						checked={!!openAiModelInfo?.supportsImages}
 						onChange={(e: any) => {
 							const isChecked = e.target.checked === true
-							const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
+							const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiCompatibleModelInfoDefaults }
 							modelInfo.supportsImages = isChecked
 							handleModeFieldChange(
 								{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
@@ -275,14 +276,14 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 								currentMode,
 							)
 						}}>
-						Supports Images
+						{localize(preferredLanguage, "Supports Images", "支持图片")}
 					</VSCodeCheckbox>
 
 					<VSCodeCheckbox
 						checked={!!openAiModelInfo?.isR1FormatRequired}
 						onChange={(e: any) => {
 							const isChecked = e.target.checked === true
-							let modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
+							let modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiCompatibleModelInfoDefaults }
 							modelInfo = { ...modelInfo, isR1FormatRequired: isChecked }
 
 							handleModeFieldChange(
@@ -291,7 +292,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 								currentMode,
 							)
 						}}>
-						Enable R1 messages format
+						{localize(preferredLanguage, "Enable R1 messages format", "启用 R1 消息格式")}
 					</VSCodeCheckbox>
 
 					<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
@@ -299,10 +300,10 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 							initialValue={
 								openAiModelInfo?.contextWindow
 									? openAiModelInfo.contextWindow.toString()
-									: (openAiModelInfoSaneDefaults.contextWindow?.toString() ?? "")
+									: (openAiCompatibleModelInfoDefaults.contextWindow?.toString() ?? "")
 							}
 							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
+								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiCompatibleModelInfoDefaults }
 								modelInfo.contextWindow = Number(value)
 								handleModeFieldChange(
 									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
@@ -311,17 +312,17 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 								)
 							}}
 							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Context Window Size</span>
+							<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Context Window Size", "上下文长度")}</span>
 						</DebouncedTextField>
 
 						<DebouncedTextField
 							initialValue={
 								openAiModelInfo?.maxTokens
 									? openAiModelInfo.maxTokens.toString()
-									: (openAiModelInfoSaneDefaults.maxTokens?.toString() ?? "")
+									: (openAiCompatibleModelInfoDefaults.maxTokens?.toString() ?? "")
 							}
 							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
+								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiCompatibleModelInfoDefaults }
 								modelInfo.maxTokens = Number(value)
 								handleModeFieldChange(
 									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
@@ -330,7 +331,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 								)
 							}}
 							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Max Output Tokens</span>
+							<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Max Output Tokens", "最大输出 Tokens")}</span>
 						</DebouncedTextField>
 					</div>
 
@@ -339,11 +340,11 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 							initialValue={
 								openAiModelInfo?.inputPrice
 									? openAiModelInfo.inputPrice.toString()
-									: (openAiModelInfoSaneDefaults.inputPrice?.toString() ?? "")
+									: (openAiCompatibleModelInfoDefaults.inputPrice?.toString() ?? "")
 							}
 							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-								modelInfo.inputPrice = parsePrice(value, openAiModelInfoSaneDefaults.inputPrice ?? 0)
+								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiCompatibleModelInfoDefaults }
+								modelInfo.inputPrice = parsePrice(value, openAiCompatibleModelInfoDefaults.inputPrice ?? 0)
 								handleModeFieldChange(
 									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
 									modelInfo,
@@ -351,18 +352,18 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 								)
 							}}
 							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Input Price / 1M tokens</span>
+							<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Input Price / 1M tokens", "输入价格 / 每 1M Tokens")}</span>
 						</DebouncedTextField>
 
 						<DebouncedTextField
 							initialValue={
 								openAiModelInfo?.outputPrice
 									? openAiModelInfo.outputPrice.toString()
-									: (openAiModelInfoSaneDefaults.outputPrice?.toString() ?? "")
+									: (openAiCompatibleModelInfoDefaults.outputPrice?.toString() ?? "")
 							}
 							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-								modelInfo.outputPrice = parsePrice(value, openAiModelInfoSaneDefaults.outputPrice ?? 0)
+								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiCompatibleModelInfoDefaults }
+								modelInfo.outputPrice = parsePrice(value, openAiCompatibleModelInfoDefaults.outputPrice ?? 0)
 								handleModeFieldChange(
 									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
 									modelInfo,
@@ -370,7 +371,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 								)
 							}}
 							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Output Price / 1M tokens</span>
+							<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Output Price / 1M tokens", "输出价格 / 每 1M Tokens")}</span>
 						</DebouncedTextField>
 					</div>
 
@@ -379,18 +380,18 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 							initialValue={
 								openAiModelInfo?.temperature
 									? openAiModelInfo.temperature.toString()
-									: (openAiModelInfoSaneDefaults.temperature?.toString() ?? "")
+									: (openAiCompatibleModelInfoDefaults.temperature?.toString() ?? "")
 							}
 							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-								modelInfo.temperature = parsePrice(value, openAiModelInfoSaneDefaults.temperature ?? 0)
+								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiCompatibleModelInfoDefaults }
+								modelInfo.temperature = parsePrice(value, openAiCompatibleModelInfoDefaults.temperature ?? 0)
 								handleModeFieldChange(
 									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
 									modelInfo,
 									currentMode,
 								)
 							}}>
-							<span style={{ fontWeight: 500 }}>Temperature</span>
+							<span style={{ fontWeight: 500 }}>{localize(preferredLanguage, "Temperature", "温度")}</span>
 						</DebouncedTextField>
 					</div>
 				</>
@@ -403,8 +404,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 					color: "var(--vscode-descriptionForeground)",
 				}}>
 				<span style={{ color: "var(--vscode-errorForeground)" }}>
-					(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude models.
-					Less capable models may not work as expected.)
+					({localize(preferredLanguage, "Note:", "提示：")} {localize(preferredLanguage, "Cline uses complex prompts and works best with Claude models. Less capable models may not work as expected.", "Cline 使用的提示词较复杂，与 Claude 模型配合最佳，能力较弱的模型可能无法稳定工作。")})
 				</span>
 			</p>
 
