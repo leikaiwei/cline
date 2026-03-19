@@ -4,6 +4,13 @@ import { describe, expect, it, vi } from "vitest"
 import { ExtensionStateContextProvider, useExtensionState } from "@/context/ExtensionStateContext"
 import ApiOptions from "../ApiOptions"
 
+// 中英文兼容，避免语言切换导致断言脆弱
+const modelLabelMatcher = /^(Model|模型)$/
+const modelConfigurationMatcher = /^(Model Configuration|模型配置)$/
+const supportsImagesMatcher = /^(Supports Images|支持图片)$/
+const contextWindowSizeMatcher = /^(Context Window Size|上下文长度)$/
+const maxOutputTokensMatcher = /^(Max Output Tokens|最大输出 Tokens)$/
+
 vi.mock("../../../context/ExtensionStateContext", async (importOriginal) => {
 	const actual = await importOriginal()
 	return {
@@ -136,7 +143,7 @@ describe("ApiOptions Component", () => {
 				<ApiOptions currentMode="plan" showModelOptions={true} />
 			</ExtensionStateContextProvider>,
 		)
-		const modelIdSelect = screen.getByLabelText("Model")
+		const modelIdSelect = screen.getByLabelText(modelLabelMatcher)
 		expect(modelIdSelect).toBeInTheDocument()
 		expect(modelIdSelect).toHaveValue("accounts/fireworks/models/kimi-k2p5")
 	})
@@ -161,8 +168,8 @@ describe("OpenApiInfoOptions", () => {
 				<ApiOptions currentMode="plan" showModelOptions={true} />
 			</ExtensionStateContextProvider>,
 		)
-		fireEvent.click(screen.getByText("Model Configuration"))
-		const apiKeyInput = screen.getByText("Supports Images")
+		fireEvent.click(screen.getByText(modelConfigurationMatcher))
+		const apiKeyInput = screen.getByText(supportsImagesMatcher)
 		expect(apiKeyInput).toBeInTheDocument()
 	})
 
@@ -172,8 +179,8 @@ describe("OpenApiInfoOptions", () => {
 				<ApiOptions currentMode="plan" showModelOptions={true} />
 			</ExtensionStateContextProvider>,
 		)
-		fireEvent.click(screen.getByText("Model Configuration"))
-		const orgIdInput = screen.getByText("Context Window Size")
+		fireEvent.click(screen.getByText(modelConfigurationMatcher))
+		const orgIdInput = screen.getByText(contextWindowSizeMatcher)
 		expect(orgIdInput).toBeInTheDocument()
 	})
 	it("uses 32k as the default OpenAI Compatible context window", () => {
@@ -182,7 +189,7 @@ describe("OpenApiInfoOptions", () => {
 				<ApiOptions currentMode="plan" showModelOptions={true} />
 			</ExtensionStateContextProvider>,
 		)
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText(modelConfigurationMatcher))
 		expect(screen.getByDisplayValue("32000")).toBeInTheDocument()
 	})
 
@@ -199,10 +206,9 @@ describe("OpenApiInfoOptions", () => {
 				<ApiOptions currentMode="plan" showModelOptions={true} />
 			</ExtensionStateContextProvider>,
 		)
-		fireEvent.click(screen.getByText("Model Configuration"))
+		fireEvent.click(screen.getByText(modelConfigurationMatcher))
 		expect(screen.getByDisplayValue("32000")).toBeInTheDocument()
 	})
-
 
 	it("renders OpenAI Max Output Tokens input", () => {
 		render(
@@ -210,8 +216,8 @@ describe("OpenApiInfoOptions", () => {
 				<ApiOptions currentMode="plan" showModelOptions={true} />
 			</ExtensionStateContextProvider>,
 		)
-		fireEvent.click(screen.getByText("Model Configuration"))
-		const modelInput = screen.getByText("Max Output Tokens")
+		fireEvent.click(screen.getByText(modelConfigurationMatcher))
+		const modelInput = screen.getByText(maxOutputTokensMatcher)
 		expect(modelInput).toBeInTheDocument()
 	})
 })
@@ -247,7 +253,7 @@ describe("ApiOptions Component", () => {
 				<ApiOptions currentMode="plan" showModelOptions={true} />
 			</ExtensionStateContextProvider>,
 		)
-		const modelIdSelect = screen.getByLabelText("Model")
+		const modelIdSelect = screen.getByLabelText(modelLabelMatcher)
 		expect(modelIdSelect).toBeInTheDocument()
 		expect(modelIdSelect).toHaveValue("Qwen/Qwen2.5-32B-Instruct-fast")
 	})
