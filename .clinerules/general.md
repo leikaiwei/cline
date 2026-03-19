@@ -14,6 +14,7 @@ This file is the secret sauce for working effectively in this codebase. It captu
 
 ## Miscellaneous
 - This is a VS Code extension—check `package.json` for available scripts before trying to verify builds (e.g., `npm run compile`, not `npm run build`).
+- VS Code extension manifests do not accept four-part numeric versions like `1.3.74.0`. When packaging or publishing that style of release, use `scripts/run-vsce-command.mjs`, which temporarily rewrites it to a SemVer prerelease like `1.3.74-0`.
 - When creating PRs, contributors should not create changelog-entry files. Maintainers handle release versioning and changelog curation during the release process.
 - When adding new feature flags, see this PR as a reference https://github.com/cline/cline/pull/7566
 - Additional instructions about making requests: @.clinerules/network.md
