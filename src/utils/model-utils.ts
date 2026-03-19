@@ -196,6 +196,12 @@ export function isLocalModel(providerInfo: ApiProviderInfo): boolean {
 	return localProviders.includes(normalize(providerInfo.providerId))
 }
 
+// 支持紧凑提示词的供应商：本地模型 + OpenAI Compatible
+export function supportsCompactPrompt(providerInfo: ApiProviderInfo): boolean {
+	const compactPromptProviders = ["lmstudio", "ollama", "openai"]
+	return compactPromptProviders.includes(normalize(providerInfo.providerId))
+}
+
 /**
  * Parses a price string and converts it from per-token to per-million-tokens
  * @param priceString The price string to parse (e.g. from API responses)

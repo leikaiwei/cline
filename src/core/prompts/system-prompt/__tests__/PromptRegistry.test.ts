@@ -67,12 +67,13 @@ describe("PromptRegistry", () => {
 				{ id: "gpt-5-1", provider: "openai-native", expected: ModelFamily.NATIVE_GPT_5_1, useNativeTools: true },
 				{ id: "openai/gpt-5", expected: ModelFamily.NEXT_GEN },
 				{ id: "gemini3", provider: "vertex", expected: ModelFamily.GEMINI_3, useNativeTools: true },
+				{ id: "qwen3_coder", provider: "openai", expected: ModelFamily.XS },
 				{ id: "unknown-model", expected: ModelFamily.GENERIC },
 			]
 
 			for (const { id, expected, provider, useNativeTools } of testCases) {
 				const providerId = provider ?? "random"
-				const customPrompt = provider === "lmstudio" ? "compact" : undefined
+				const customPrompt = provider === "lmstudio" || provider === "openai" ? "compact" : undefined
 				const providerInfo = { ...mockProviderInfo, providerId, model: { ...mockProviderInfo.model, id }, customPrompt }
 				const result = registry.getModelFamily({
 					...mockContext,

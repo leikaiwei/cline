@@ -13,6 +13,7 @@ import { BaseUrlField } from "../common/BaseUrlField"
 import { DebouncedTextField } from "../common/DebouncedTextField"
 import { ModelInfoView } from "../common/ModelInfoView"
 import ReasoningEffortSelector from "../ReasoningEffortSelector"
+import UseCustomPromptCheckbox from "../UseCustomPromptCheckbox"
 import { parsePrice } from "../utils/pricingUtils"
 import { getModeSpecificFields, normalizeApiConfiguration, supportsReasoningEffortForModelId } from "../utils/providerUtils"
 import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers"
@@ -231,6 +232,10 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 				}}>
 				Use Azure Identity Authentication
 			</VSCodeCheckbox>
+
+			<div style={{ marginTop: 10, marginBottom: 10 }}>
+				<UseCustomPromptCheckbox providerId="openai" />
+			</div>
 
 			<div
 				onClick={() => setModelConfigurationSelected((val) => !val)}
