@@ -7,6 +7,7 @@ const mockUpdateSetting = vi.fn()
 vi.mock("@/context/ExtensionStateContext", () => ({
 	useExtensionState: vi.fn(() => ({
 		enableCheckpointsSetting: true,
+		preferredLanguage: "English",
 		hooksEnabled: false,
 		mcpDisplayMode: "rich",
 		strictPlanModeEnabled: false,
