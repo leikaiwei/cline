@@ -9,8 +9,28 @@ const originalVersion = packageJson.version
 const args = process.argv.slice(2)
 const localVscePath = path.resolve("node_modules", ".bin", process.platform === "win32" ? "vsce.cmd" : "vsce")
 const hasLocalVsce = fs.existsSync(localVscePath)
-const vsceCommand = hasLocalVsce ? localVscePath : "npx"
-const vsceArgs = hasLocalVsce ? args : ["@vscode/vsce", ...args]
+
+function getVsceSpawnConfig() {
+	if (hasLocalVsce) {
+		if (process.platform === "win32") {
+			// Windows 下 .cmd 需要交给 cmd.exe 执行，直接 spawnSync 会报 EINVAL。
+			return {
+				command: process.env.comspec || "cmd.exe",
+				args: ["/d", "/s", "/c", localVscePath, ...args],
+			}
+		}
+
+		return {
+			command: localVscePath,
+			args,
+		}
+	}
+
+	return {
+		command: "npx",
+		args: ["@vscode/vsce", ...args],
+	}
+}
 
 const semverLikePattern = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/
 const fourPartNumericPattern = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/
@@ -34,6 +54,7 @@ function getVsceCompatibleVersion(version) {
 
 const vsceVersion = getVsceCompatibleVersion(originalVersion)
 const shouldRewriteVersion = vsceVersion !== originalVersion
+const { command: vsceCommand, args: vsceArgs } = getVsceSpawnConfig()
 
 try {
 	if (shouldRewriteVersion) {
