@@ -1,6 +1,7 @@
 import { afterEach, describe, it } from "mocha"
 import "should"
 import { AuthHandler } from "@/hosts/external/AuthHandler"
+import { ExtensionRegistryInfo } from "@/registry"
 
 /**
  * Regression tests for OAuth callback URL generation.
@@ -77,7 +78,7 @@ describe("Auth Callback URL", () => {
 		})
 
 		it("should encode vscode:// callback URLs correctly", () => {
-			const desktopCallback = "vscode://saoudrizwan.claude-dev/openrouter"
+			const desktopCallback = `vscode://${ExtensionRegistryInfo.id}/openrouter`
 
 			const authUrl = new URL("https://openrouter.ai/auth")
 			authUrl.searchParams.set("callback_url", desktopCallback)
