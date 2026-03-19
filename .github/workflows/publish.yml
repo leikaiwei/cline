@@ -81,7 +81,7 @@ jobs:
 
             - name: Package VSIX
               run: |
-                  vsce package --allow-package-secrets sendgrid --out "cline-${{ steps.get_version.outputs.version }}.vsix"
+                  node scripts/run-vsce-command.mjs package --allow-package-secrets sendgrid --out "cline-${{ steps.get_version.outputs.version }}.vsix"
                   ls -lh "cline-${{ steps.get_version.outputs.version }}.vsix"
 
             - name: Create GitHub Release
