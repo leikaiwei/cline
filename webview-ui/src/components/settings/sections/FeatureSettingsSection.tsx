@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
+import { localize } from "@/utils/localization"
 import Section from "../Section"
 import SettingsSlider from "../SettingsSlider"
 import { updateSetting } from "../utils/settingsHandlers"
@@ -138,6 +139,50 @@ const advancedFeatures: FeatureToggle[] = [
 	},
 ]
 
+const localizeFeatureLabel = (preferredLanguage: string | undefined, featureId: string, fallbackLabel: string) => {
+	const labels: Record<string, string> = {
+		subagents: "子代理",
+		"native-tool-call": "原生工具调用",
+		"parallel-tool-calling": "并行工具调用",
+		"strict-plan-mode": "严格计划模式",
+		"auto-compact": "自动压缩",
+		"focus-chain": "焦点链",
+		"background-edit": "后台编辑",
+		checkpoints: "检查点",
+		"cline-web-tools": "Cline 网络工具",
+		worktrees: "工作树",
+		yolo: "Yolo 模式",
+		"double-check-completion": "二次完成校验",
+		hooks: "Hooks（钩子）",
+	}
+
+	return localize(preferredLanguage, fallbackLabel, labels[featureId] ?? fallbackLabel)
+}
+
+const localizeFeatureDescription = (preferredLanguage: string | undefined, featureId: string, fallbackDescription: ReactNode) => {
+	if (typeof fallbackDescription !== "string") {
+		return fallbackDescription
+	}
+
+	const descriptions: Record<string, string> = {
+		subagents: "让 Cline 并行运行多个聚焦子代理，帮你探索代码库。",
+		"native-tool-call": "可用时优先使用原生函数调用。",
+		"parallel-tool-calling": "同时执行多个工具调用。",
+		"strict-plan-mode": "在计划模式下禁止编辑文件。",
+		"auto-compact": "自动压缩对话历史。",
+		"focus-chain": "在多轮交互中保持上下文聚焦。",
+		"background-edit": "编辑时不抢占编辑器焦点。",
+		checkpoints: "在关键节点保存进度，方便回滚。",
+		"cline-web-tools": "启用网页浏览与搜索能力。",
+		worktrees: "启用 git worktree，便于并行运行多个 Cline 任务。",
+		yolo: "执行任务时跳过用户确认，会自动从 Plan 切到 Act，并禁用提问工具，请谨慎使用。",
+		"double-check-completion": "首次完成会被拒绝，模型需按原始任务要求再次自检后才会接受。",
+		hooks: "在任务执行期间启用生命周期与工具钩子。",
+	}
+
+	return localize(preferredLanguage, fallbackDescription, descriptions[featureId] ?? fallbackDescription)
+}
+
 const FeatureRow = memo(
 	({
 		checked = false,
@@ -211,6 +256,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 		enableParallelToolCalling,
 		backgroundEditEnabled,
 		doubleCheckCompletionEnabled,
+		preferredLanguage,
 	} = useExtensionState()
 
 	const handleFocusChainIntervalChange = useCallback(
@@ -269,7 +315,9 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 				<div className="mb-5 flex flex-col gap-3">
 					{/* Core features */}
 					<div>
-						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Agent</div>
+						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">
+							{localize(preferredLanguage, "Agent", "代理")}
+						</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50"
 							id="agent-features">
@@ -277,10 +325,10 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 								<div key={feature.id}>
 									<FeatureRow
 										checked={featureState[feature.stateKey]}
-										description={feature.description}
+										description={localizeFeatureDescription(preferredLanguage, feature.id, feature.description)}
 										isVisible={featureVisibility[feature.stateKey] ?? true}
 										key={feature.id}
-										label={feature.label}
+										label={localizeFeatureLabel(preferredLanguage, feature.id, feature.label)}
 										onChange={(checked) =>
 											feature.nestedKey === "enabled"
 												? handleFeatureChange(feature, checked)
@@ -289,7 +337,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 									/>
 									{feature.id === "focus-chain" && featureState[feature.stateKey] && (
 										<SettingsSlider
-											label="Reminder Interval (1-10)"
+											label={localize(preferredLanguage, "Reminder Interval (1-10)", "提醒间隔（1-10）")}
 											max={10}
 											min={1}
 											onChange={handleFocusChainIntervalChange}
@@ -305,17 +353,19 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 					{/* Editor features */}
 					<div>
-						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Editor</div>
+						<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">
+							{localize(preferredLanguage, "Editor", "编辑器")}
+						</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50"
 							id="optional-features">
 							{editorFeatures.map((feature) => (
 								<FeatureRow
 									checked={featureState[feature.stateKey]}
-									description={feature.description}
+									description={localizeFeatureDescription(preferredLanguage, feature.id, feature.description)}
 									isVisible={featureVisibility[feature.stateKey] ?? true}
 									key={feature.id}
-									label={feature.label}
+									label={localizeFeatureLabel(preferredLanguage, feature.id, feature.label)}
 									onChange={(checked) => handleFeatureChange(feature, checked)}
 								/>
 							))}
@@ -324,21 +374,27 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 					{/* Experimental features */}
 					<div>
-						<div className="text-xs font-medium uppercase tracking-wider mb-3 text-warning/80">Experimental</div>
+						<div className="text-xs font-medium uppercase tracking-wider mb-3 text-warning/80">
+							{localize(preferredLanguage, "Experimental", "实验性")}
+						</div>
 						<div
 							className="relative p-3 pt-0 my-3 rounded-md border border-editor-widget-border/50 w-full"
 							id="experimental-features">
 							{experimentalFeatures.map((feature) => (
 								<FeatureRow
 									checked={featureState[feature.stateKey]}
-									description={feature.description}
+									description={localizeFeatureDescription(preferredLanguage, feature.id, feature.description)}
 									disabled={feature.id === "yolo" && isYoloRemoteLocked}
 									isRemoteLocked={feature.id === "yolo" && isYoloRemoteLocked}
 									isVisible={featureVisibility[feature.stateKey] ?? true}
 									key={feature.id}
-									label={feature.label}
+									label={localizeFeatureLabel(preferredLanguage, feature.id, feature.label)}
 									onChange={(checked) => handleFeatureChange(feature, checked)}
-									remoteTooltip="This setting is managed by your organization's remote configuration"
+									remoteTooltip={localize(
+										preferredLanguage,
+										"This setting is managed by your organization's remote configuration",
+										"此设置由组织的远程配置统一管理",
+									)}
 								/>
 							))}
 						</div>
@@ -347,31 +403,37 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
 				{/* Advanced */}
 				<div>
-					<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">Advanced</div>
+					<div className="text-xs font-medium text-foreground/80 uppercase tracking-wider mb-3">
+						{localize(preferredLanguage, "Advanced", "高级")}
+					</div>
 					<div className="relative p-3 my-3 rounded-md border border-editor-widget-border/50" id="advanced-features">
 						<div className="space-y-3">
 							{advancedFeatures.map((feature) => (
 								<FeatureRow
 									checked={featureState[feature.stateKey]}
-									description={feature.description}
+									description={localizeFeatureDescription(preferredLanguage, feature.id, feature.description)}
 									isVisible={featureVisibility[feature.stateKey] ?? true}
 									key={feature.id}
-									label={feature.label}
+									label={localizeFeatureLabel(preferredLanguage, feature.id, feature.label)}
 									onChange={(checked) => handleFeatureChange(feature, checked)}
 								/>
 							))}
 
 							{/* MCP Display Mode */}
 							<div className="space-y-2">
-								<Label className="text-sm font-medium text-foreground">MCP Display Mode</Label>
-								<p className="text-xs text-muted-foreground">Controls how MCP responses are displayed</p>
+								<Label className="text-sm font-medium text-foreground">
+									{localize(preferredLanguage, "MCP Display Mode", "MCP 显示模式")}
+								</Label>
+								<p className="text-xs text-muted-foreground">
+									{localize(preferredLanguage, "Controls how MCP responses are displayed", "控制 MCP 响应的展示方式")}
+								</p>
 								<Select onValueChange={(v) => updateSetting("mcpDisplayMode", v)} value={mcpDisplayMode}>
 									<SelectTrigger className="w-full">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="plain">Plain Text</SelectItem>
-										<SelectItem value="rich">Rich Display</SelectItem>
+										<SelectItem value="plain">{localize(preferredLanguage, "Plain Text", "纯文本")}</SelectItem>
+										<SelectItem value="rich">{localize(preferredLanguage, "Rich Display", "富文本显示")}</SelectItem>
 										<SelectItem value="markdown">Markdown</SelectItem>
 									</SelectContent>
 								</Select>

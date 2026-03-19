@@ -5,6 +5,7 @@ import { PlatformType } from "@/config/platform.config"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { usePlatform } from "@/context/PlatformContext"
 import { StateServiceClient } from "../../../services/grpc-client"
+import { localize } from "../../../utils/localization"
 import Section from "../Section"
 import TerminalOutputLineLimitSlider from "../TerminalOutputLineLimitSlider"
 import { updateSetting } from "../utils/settingsHandlers"
@@ -20,6 +21,7 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
 		defaultTerminalProfile,
 		availableTerminalProfiles,
 		vscodeTerminalExecutionMode,
+		preferredLanguage,
 	} = useExtensionState()
 	const platformConfig = usePlatform()
 	const isVsCodePlatform = platformConfig.type === PlatformType.VSCODE
@@ -35,7 +37,7 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
 
 		const seconds = parseFloat(value)
 		if (Number.isNaN(seconds) || seconds <= 0) {
-			setInputError("Please enter a positive number")
+			setInputError(localize(preferredLanguage, "Please enter a positive number", "请输入正数"))
 			return
 		}
 
@@ -93,7 +95,7 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
 				<div className="mb-5" id="terminal-settings-section">
 					<div className="mb-4">
 						<label className="font-medium block mb-1" htmlFor="default-terminal-profile">
-							Default Terminal Profile
+							{localize(preferredLanguage, "Default Terminal Profile", "默认终端配置")}
 						</label>
 						<VSCodeDropdown
 							className="w-full"
@@ -107,27 +109,36 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
 							))}
 						</VSCodeDropdown>
 						<p className="text-xs text-(--vscode-descriptionForeground) mt-1">
-							Select the default terminal Cline will use. 'Default' uses your VSCode global setting.
+							{localize(
+								preferredLanguage,
+								"Select the default terminal Cline will use. 'Default' uses your VSCode global setting.",
+								"选择 Cline 默认使用的终端。Default 会沿用 VS Code 全局设置。",
+							)}
 						</p>
 					</div>
 
 					<div className="mb-4">
 						<div className="mb-2">
-							<label className="font-medium block mb-1">Shell integration timeout (seconds)</label>
+							<label className="font-medium block mb-1">
+								{localize(preferredLanguage, "Shell integration timeout (seconds)", "Shell 集成超时（秒）")}
+							</label>
 							<div className="flex items-center">
 								<VSCodeTextField
 									className="w-full"
 									onBlur={handleInputBlur}
 									onChange={(event) => handleTimeoutChange(event as Event)}
-									placeholder="Enter timeout in seconds"
+									placeholder={localize(preferredLanguage, "Enter timeout in seconds", "输入超时时间（秒）")}
 									value={inputValue}
 								/>
 							</div>
 							{inputError && <div className="text-(--vscode-errorForeground) text-xs mt-1">{inputError}</div>}
 						</div>
 						<p className="text-xs text-(--vscode-descriptionForeground)">
-							Set how long Cline waits for shell integration to activate before executing commands. Increase this
-							value if you experience terminal connection timeouts.
+							{localize(
+								preferredLanguage,
+								"Set how long Cline waits for shell integration to activate before executing commands. Increase this value if you experience terminal connection timeouts.",
+								"设置执行命令前等待 shell 集成激活的时间。如果终端连接经常超时，可适当调大。",
+							)}
 						</p>
 					</div>
 
@@ -136,50 +147,62 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
 							<VSCodeCheckbox
 								checked={terminalReuseEnabled ?? true}
 								onChange={(event) => handleTerminalReuseChange(event as Event)}>
-								Enable aggressive terminal reuse
+								{localize(preferredLanguage, "Enable aggressive terminal reuse", "启用积极的终端复用")}
 							</VSCodeCheckbox>
 						</div>
 						<p className="text-xs text-(--vscode-descriptionForeground)">
-							When enabled, Cline will reuse existing terminal windows that aren't in the current working directory.
-							Disable this if you experience issues with task lockout after a terminal command.
+							{localize(
+								preferredLanguage,
+								"When enabled, Cline will reuse existing terminal windows that aren't in the current working directory. Disable this if you experience issues with task lockout after a terminal command.",
+								"开启后，Cline 会复用不在当前工作目录的现有终端窗口。如果终端命令后出现任务锁定问题，请关闭此项。",
+							)}
 						</p>
 					</div>
 					{isVsCodePlatform && (
 						<div className="mb-4">
 							<label className="font-medium block mb-1" htmlFor="terminal-execution-mode">
-								Terminal Execution Mode
+								{localize(preferredLanguage, "Terminal Execution Mode", "终端执行模式")}
 							</label>
 							<VSCodeDropdown
 								className="w-full"
 								id="terminal-execution-mode"
 								onChange={(event) => handleExecutionModeChange(event as Event)}
 								value={vscodeTerminalExecutionMode ?? "vscodeTerminal"}>
-								<VSCodeOption value="vscodeTerminal">VS Code Terminal</VSCodeOption>
-								<VSCodeOption value="backgroundExec">Background Exec</VSCodeOption>
+								<VSCodeOption value="vscodeTerminal">
+									{localize(preferredLanguage, "VS Code Terminal", "VS Code 终端")}
+								</VSCodeOption>
+								<VSCodeOption value="backgroundExec">
+									{localize(preferredLanguage, "Background Exec", "后台执行")}
+								</VSCodeOption>
 							</VSCodeDropdown>
 							<p className="text-xs text-[var(--vscode-descriptionForeground)] mt-1">
-								Choose whether Cline runs commands in the VS Code terminal or a background process.
+								{localize(
+									preferredLanguage,
+									"Choose whether Cline runs commands in the VS Code terminal or a background process.",
+									"选择让 Cline 在 VS Code 终端中执行命令，还是在后台进程中执行。",
+								)}
 							</p>
 						</div>
 					)}
 					<TerminalOutputLineLimitSlider />
 					<div className="mt-5 p-3 bg-(--vscode-textBlockQuote-background) rounded border border-(--vscode-textBlockQuote-border)">
 						<p className="text-[13px] m-0">
-							<strong>Having terminal issues?</strong> Check our{" "}
+							<strong>{localize(preferredLanguage, "Having terminal issues?", "终端有问题？")}</strong>{" "}
+							{localize(preferredLanguage, "Check our", "可查看")}{" "}
 							<a
 								className="text-(--vscode-textLink-foreground) underline hover:no-underline"
 								href="https://docs.cline.bot/troubleshooting/terminal-quick-fixes"
 								rel="noopener noreferrer"
 								target="_blank">
-								Terminal Quick Fixes
+								{localize(preferredLanguage, "Terminal Quick Fixes", "终端快速修复")}
 							</a>{" "}
-							or the{" "}
+							{localize(preferredLanguage, "or the", "或")}{" "}
 							<a
 								className="text-(--vscode-textLink-foreground) underline hover:no-underline"
 								href="https://docs.cline.bot/troubleshooting/terminal-integration-guide"
 								rel="noopener noreferrer"
 								target="_blank">
-								Complete Troubleshooting Guide
+								{localize(preferredLanguage, "Complete Troubleshooting Guide", "完整排障指南")}
 							</a>
 							.
 						</p>
