@@ -66,9 +66,9 @@ import { ClineAskResponse } from "@shared/WebviewMessage"
 import {
 	isClaude4PlusModelFamily,
 	isGPT5ModelFamily,
-	isLocalModel,
 	isNextGenModelFamily,
 	isParallelToolCallingEnabled,
+	supportsCompactPrompt,
 } from "@utils/model-utils"
 import { arePathsEqual, getDesktopDir } from "@utils/path"
 import { filterExistingFiles } from "@utils/tabFiltering"
@@ -2415,7 +2415,8 @@ export class Task {
 
 		// Determine if we should compact context window
 		// Note: We delay context loading until we know if we're compacting (performance optimization)
-		const useCompactPrompt = customPrompt === "compact" && isLocalModel(this.getCurrentProviderInfo())
+		// 仅在支持的供应商上启用紧凑提示词，避免影响其他模型路径
+		const useCompactPrompt = customPrompt === "compact" && supportsCompactPrompt(this.getCurrentProviderInfo())
 		let shouldCompact = false
 		const useAutoCondense = this.stateManager.getGlobalSettingsKey("useAutoCondense")
 

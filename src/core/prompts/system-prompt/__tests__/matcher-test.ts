@@ -39,6 +39,16 @@ const mockProviderInfos: { name: string; providerInfo: ApiProviderInfo; expected
 		expectedFamily: ModelFamily.XS,
 	},
 	{
+		name: "Compact OpenAI compatible model",
+		providerInfo: {
+			providerId: "openai",
+			model: { id: "qwen3_coder", info: {} as any },
+			mode: "act" as const,
+			customPrompt: "compact",
+		},
+		expectedFamily: ModelFamily.XS,
+	},
+	{
 		name: "Generic model",
 		providerInfo: {
 			providerId: "openai",

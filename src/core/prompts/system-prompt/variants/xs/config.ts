@@ -1,4 +1,4 @@
-import { isLocalModel } from "@utils/model-utils"
+import { supportsCompactPrompt } from "@utils/model-utils"
 import { ModelFamily } from "@/shared/prompts"
 import { Logger } from "@/shared/services/Logger"
 import { ClineDefaultTool } from "@/shared/tools"
@@ -21,10 +21,10 @@ export const config = createVariant(ModelFamily.XS)
 	})
 	.matcher((context) => {
 		const providerInfo = context.providerInfo
-		if (!isLocalModel(providerInfo)) {
+		if (!supportsCompactPrompt(providerInfo)) {
 			return false
 		}
-		// Match compact local models
+		// 匹配开启了紧凑提示词的模型
 		return providerInfo.customPrompt === "compact"
 	})
 	.template(baseTemplate)

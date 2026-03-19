@@ -1,8 +1,8 @@
 import {
 	isGLMModelFamily,
-	isLocalModel,
 	isNextGenModelFamily,
 	isNextGenModelProvider,
+	supportsCompactPrompt,
 	isTrinityModelFamily,
 } from "@utils/model-utils"
 import { ModelFamily } from "@/shared/prompts"
@@ -30,8 +30,8 @@ export const config = createVariant(ModelFamily.GENERIC)
 		}
 		const modelId = providerInfo.model.id.toLowerCase()
 		return (
-			// Not a local model with compact prompt enabled
-			!(providerInfo.customPrompt === "compact" && isLocalModel(providerInfo)) &&
+			// 排除已启用紧凑提示词的供应商，交给 XS 变体处理
+			!(providerInfo.customPrompt === "compact" && supportsCompactPrompt(providerInfo)) &&
 			// Not a next-gen model
 			!(isNextGenModelProvider(providerInfo) && isNextGenModelFamily(modelId)) &&
 			// Not a GLM model

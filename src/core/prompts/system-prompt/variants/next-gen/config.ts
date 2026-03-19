@@ -1,4 +1,4 @@
-import { isGPT5ModelFamily, isLocalModel, isNextGenModelFamily, isNextGenModelProvider } from "@utils/model-utils"
+import { isGPT5ModelFamily, isNextGenModelFamily, isNextGenModelProvider, supportsCompactPrompt } from "@utils/model-utils"
 import { ModelFamily } from "@/shared/prompts"
 import { Logger } from "@/shared/services/Logger"
 import { ClineDefaultTool } from "@/shared/tools"
@@ -25,7 +25,7 @@ export const config = createVariant(ModelFamily.NEXT_GEN)
 		}
 		const modelId = providerInfo.model.id
 		return (
-			!(providerInfo.customPrompt === "compact" && isLocalModel(providerInfo)) &&
+			!(providerInfo.customPrompt === "compact" && supportsCompactPrompt(providerInfo)) &&
 			!isNextGenModelProvider(providerInfo) &&
 			isNextGenModelFamily(modelId) &&
 			!(isGPT5ModelFamily(modelId) && !modelId.includes("chat"))
